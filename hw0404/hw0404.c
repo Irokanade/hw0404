@@ -61,7 +61,7 @@ int main(int argc, char *argv[]) {
                     fileName = &filePath[i];
                 }
             }
-            printf("+--");
+            printf("+-- ");
             if(fileName == NULL) {
                 noSlashPrint(filePath);
                 //printf("%s\n", filePath);
