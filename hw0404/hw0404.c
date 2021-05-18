@@ -33,17 +33,40 @@ typedef struct _dataDescriptor {
 } dataDescriptor;
 
 int noSlashPrint(char *str);
+int printHelp(char *option);
 
 int main(int argc, char *argv[]) {
     FILE *zipFile = NULL;
     
+    if(printHelp(argv[1])) {
+        return 1;
+    }
+    
+    if(argc != 2) {
+        printf("invalid option\n");
+        printf("use '--help' for help\n");
+        return 1;
+    }
+    
+    //printf("argv[1]: %s\n", argv[1]);
+    
+    //printf("extension: %s\n", argv[1]+strlen(argv[1])-4);
+    if(strncmp(argv[1]+strlen(argv[1])-4, ".zip", 4) != 0) {
+        printf("must be .zip file\n");
+        printf("use '--help' for help\n");
+        return 1;
+    }
+    
     if((zipFile = fopen(argv[1], "rb")) == NULL) {
         printf("file open error\n");
+        printf("enter '--help' for help\n");
         return 1;
     }
     
     char signature[4] = {0x50, 0x4b, 0x03, 0x04};
     int sigCount = 0;
+    
+    printf(".\n");
     
     while(!feof(zipFile)) {
         if(sigCount == 4) {
@@ -58,6 +81,7 @@ int main(int argc, char *argv[]) {
             for(size_t i = 0; i < zipHeader1.fileNameLen-1; i++) {
                 if(filePath[i] == '/') {
                     printf("    ");
+                    //print from the second last '/'
                     fileName = &filePath[i];
                 }
             }
@@ -75,7 +99,7 @@ int main(int argc, char *argv[]) {
         
         uint8_t readByte = fgetc(zipFile);
         if(readByte == signature[sigCount]) {
-            sigCount++;
+            sigCount++; //search for signature
         } else {
             sigCount = 0;
         }
@@ -95,4 +119,13 @@ int noSlashPrint(char *str) {
     }
     
     return printf("%s\n", str);
+}
+
+int printHelp(char *option) {
+    if(strncmp(option, "--help", 6) == 0) {
+        printf("use './hw0404 [filename]' to read header of .zip file\n ");
+        return 1;
+    }
+    
+    return 0;
 }
